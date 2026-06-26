@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Rule Editor | RAINY COMMUNITY</title>
+  <link rel="icon" type="image/png" href="rain-community-logo-cropped.png?v=3">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;600;700;800&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="admin.css">
+</head>
+<body class="admin-body">
+  <main class="admin-shell">
+    <aside class="admin-sidebar">
+      <a class="admin-brand" href="index.html" aria-label="กลับหน้าหลัก">
+        <img src="rain-community-logo-cropped.png?v=3" alt="RAINY COMMUNITY">
+      </a>
+      <div class="admin-title">
+        <span>RULE ADMIN</span>
+        <h1>แก้ไขกฎเว็บไซต์</h1>
+      </div>
+      <div class="admin-actions">
+        <button class="primary-action" type="button" id="pickFolderButton">เลือกโฟลเดอร์เว็บ</button>
+        <label class="secondary-action" for="fileImportInput">นำเข้าไฟล์ HTML</label>
+        <input id="fileImportInput" type="file" accept=".html,text/html" multiple>
+      </div>
+      <div class="github-connect">
+        <div class="github-connect-title">
+          <span>GITHUB</span>
+          <strong>แก้ไฟล์บน repo</strong>
+        </div>
+        <label>
+          <span>Owner</span>
+          <input id="githubOwnerInput" type="text" autocomplete="off" placeholder="เช่น yourname">
+        </label>
+        <label>
+          <span>Repository</span>
+          <input id="githubRepoInput" type="text" autocomplete="off" placeholder="เช่น webrules">
+        </label>
+        <label>
+          <span>Branch</span>
+          <input id="githubBranchInput" type="text" autocomplete="off" value="main">
+        </label>
+        <label>
+          <span>Token</span>
+          <input id="githubTokenInput" type="password" autocomplete="off" placeholder="GitHub token ของแอดมิน">
+        </label>
+        <button class="secondary-action" type="button" id="githubConnectButton">เชื่อม GitHub</button>
+      </div>
+      <p class="admin-note">ถ้าเอาเว็บขึ้น GitHub Pages ให้ใช้โหมด GitHub แล้วให้แอดมินแต่ละคนใส่ token ของตัวเองที่มีสิทธิ์ Contents: Read and write</p>
+      <nav class="admin-page-list" id="pageList" aria-label="รายการหน้ากฎ"></nav>
+    </aside>
+
+    <section class="admin-workspace">
+      <div class="admin-toolbar">
+        <div>
+          <span id="connectionStatus">ยังไม่ได้เลือกโฟลเดอร์</span>
+          <h2 id="currentPageTitle">เลือกหน้าที่ต้องการแก้ไข</h2>
+        </div>
+        <div class="toolbar-actions">
+          <button class="primary-action" type="button" id="saveButton" disabled>บันทึกไฟล์</button>
+        </div>
+      </div>
+
+      <div class="admin-empty" id="emptyState">
+        <h3>เริ่มจากเลือกโฟลเดอร์เว็บ</h3>
+        <p>หลังเลือกโฟลเดอร์แล้ว ระบบจะโหลดหน้า HTML ทั้งหมดที่มีหมวดกฎให้แก้ไขได้ทันที</p>
+      </div>
+
+      <form class="editor-form" id="editorForm" hidden>
+        <section class="editor-panel">
+          <div class="panel-heading">
+            <span>PAGE HERO</span>
+            <h3>หัวหน้ากฎ</h3>
+          </div>
+          <label>
+            <span>หัวข้อใหญ่</span>
+            <input id="heroTitleInput" type="text" autocomplete="off">
+          </label>
+          <label>
+            <span>คำอธิบายใต้หัวข้อ</span>
+            <textarea id="heroDescriptionInput" rows="3"></textarea>
+          </label>
+        </section>
+
+        <section class="editor-panel">
+          <div class="panel-heading row-heading">
+            <div>
+              <span>RULE SECTIONS</span>
+              <h3>หมวดกฎ</h3>
+            </div>
+            <button class="secondary-action" type="button" id="addSectionButton">เพิ่มหมวด</button>
+          </div>
+          <div class="section-editor-list" id="sectionEditorList"></div>
+        </section>
+      </form>
+    </section>
+  </main>
+
+  <template id="sectionTemplate">
+    <article class="section-editor">
+      <div class="section-editor-head">
+        <div class="section-index"></div>
+        <button class="icon-action danger-action" type="button" data-action="remove-section" title="ลบหมวด">ลบ</button>
+      </div>
+      <div class="section-grid">
+        <label>
+          <span>ป้ายหมวด</span>
+          <input type="text" data-field="label" autocomplete="off">
+        </label>
+        <label>
+          <span>ชื่อหมวด</span>
+          <input type="text" data-field="heading" autocomplete="off">
+        </label>
+        <label>
+          <span>ชนิดรายการ</span>
+          <select data-field="listType">
+            <option value="ul">จุดรายการ</option>
+            <option value="ol">เลขข้อ</option>
+          </select>
+        </label>
+      </div>
+      <div class="rule-item-list"></div>
+      <button class="secondary-action" type="button" data-action="add-rule">เพิ่มข้อกฎ</button>
+    </article>
+  </template>
+
+  <template id="ruleItemTemplate">
+    <div class="rule-item-editor">
+      <div class="rule-item-number"></div>
+      <textarea rows="3" data-field="ruleText"></textarea>
+      <button class="icon-action danger-action" type="button" data-action="remove-rule" title="ลบข้อ">ลบ</button>
+    </div>
+  </template>
+
+  <script src="admin-editor.js"></script>
+</body>
+</html>
